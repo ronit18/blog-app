@@ -14,7 +14,10 @@ export const GET = async (req: Request, res: NextResponse) => {
 		await main();
 		const post = await prisma.post.findMany();
 		console.log('GET /api/blog/route.ts:', post);
-		return NextResponse.json({ message: 'success', post }, { status: 200 });
+		return NextResponse.json(
+			{ message: 'Successfully fetched all the post', post },
+			{ status: 200 }
+		);
 	} catch (err: any) {
 		console.log('Error in GET /api/blog/route.ts:', err);
 		return NextResponse.json(
@@ -37,7 +40,10 @@ export const POST = async (req: Request, res: NextResponse) => {
 			},
 		});
 		console.log('POST /api/blog/route.ts:', post);
-		return NextResponse.json({ message: 'success', post }, { status: 201 });
+		return NextResponse.json(
+			{ message: `Successfully Created a Post: ${post.id}`, post },
+			{ status: 201 }
+		);
 	} catch (err: any) {
 		console.log('Error in POST /api/blog/route.ts:', err);
 		return NextResponse.json(
