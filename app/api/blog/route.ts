@@ -12,7 +12,7 @@ export async function main() {
 export const GET = async (req: Request, res: NextResponse) => {
 	try {
 		await main();
-		const post = await prisma.post.findMany();
+		const post = await prisma.post.findMany({ orderBy: { date: 'desc' } });
 		console.log('GET /api/blog/route.ts:', post);
 		return NextResponse.json(
 			{ message: 'Successfully fetched all the post', post },
