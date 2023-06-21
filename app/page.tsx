@@ -37,7 +37,7 @@ const Home = async () => {
 					>
 						<div className="flex items-center ">
 							<div className="mr-auto">
-								<h2 className="mr-auto font-semibold">
+								<h2 className="mr-auto font-bold">
 									{posts.title}
 								</h2>
 							</div>
