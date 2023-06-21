@@ -1,15 +1,37 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React, { useRef } from 'react';
+import React, { use, useEffect, useRef } from 'react';
 import { Toaster, Toast, toast } from 'react-hot-toast';
 import { BiArrowBack } from 'react-icons/bi';
 
-const postBlog = async (title: string, description: string) => {
-	toast.loading('Posting Blog...⌛ ', { id: '1' });
+const getBlogById = async (id: string) => {
+	toast.loading('Fetching Blog...⌛ ', { id: '1' });
+
 	try {
-		const res = await fetch('http://localhost:3000/api/blog/', {
-			method: 'POST',
+		const res = await fetch(`http://localhost:3000/api/blog/${id}`);
+		const data = await res.json();
+
+		if (data.error) {
+			toast.error(data.error, { id: '1' });
+			return;
+		}
+
+		toast.success('Blog Fetched Successfully 👍 ', { id: '1' });
+
+		return data.post;
+	} catch (err: any) {
+		console.log('Error in getBlogById(app/blog/edit/[id]/page.tsx): ', err);
+		toast.error('Error in getting blog ❌ ', { id: '1' });
+		return;
+	}
+};
+
+const postBlog = async (title: string, description: string, id: string) => {
+	toast.loading('Posting the updated Blog...⌛ ', { id: '1' });
+	try {
+		const res = await fetch(`http://localhost:3000/api/blog/${id}`, {
+			method: 'PUT',
 			body: JSON.stringify({ title, description }),
 			//@ts-ignore
 			'content-type': 'application/json',
@@ -21,7 +43,7 @@ const postBlog = async (title: string, description: string) => {
 			return;
 		}
 
-		toast.success('Blog Posted Successfully 👍 ', { id: '1' });
+		toast.success('Blog Updated Successfully 👍 ', { id: '1' });
 		return data;
 	} catch (err: any) {
 		console.log('Error in postBlog(app/blog/add/page.tsx): ', err);
@@ -30,15 +52,31 @@ const postBlog = async (title: string, description: string) => {
 	}
 };
 
-const AddBlog = () => {
+const EditBlog = ({ params }: { params: { id: string } }) => {
 	const router = useRouter();
 	const titleRef = useRef<HTMLInputElement | null>(null);
 	const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
+	useEffect(() => {
+		getBlogById(params.id)
+			.then((data) => {
+				titleRef.current!.value = data.title;
+				descriptionRef.current!.value = data.description;
+			})
+			.catch((err) => {
+				console.log(err);
+				toast.error('Error in getting blog ❌ ', { id: '1' });
+			});
+	}, [params.id]);
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		await postBlog(titleRef.current!.value, descriptionRef.current!.value);
+		await postBlog(
+			titleRef.current!.value,
+			descriptionRef.current!.value,
+			params.id
+		);
 	};
 
 	return (
@@ -53,7 +91,7 @@ const AddBlog = () => {
 			<div className="w-full m-auto flex my-4">
 				<div className="flex flex-col justify-center items-center m-auto">
 					<p className="text-2xl text-slate-200 font-bold p-3">
-						Add a Wonderfull Blog 🌠{' '}
+						Edit Blog 🌟{' '}
 					</p>
 
 					<form
@@ -104,4 +142,4 @@ const AddBlog = () => {
 	);
 };
 
-export default AddBlog;
+export default EditBlog;
